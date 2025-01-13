@@ -2,8 +2,11 @@
 
 namespace App\Application\Ports\Inbound;
 
+use App\Domain\Entities\Consumer;
+
 interface IAuthPort
 {
-    public function generateJWT(string $username, string $password): string;
+    public function authenticate(string $authorizationHeader): ?Consumer;
+    public function generateJWT(Consumer $consumer): string;
     public function validateJWT(string $token): bool;
 }

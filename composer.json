@@ -3,7 +3,12 @@
         "slim/slim": "^4.14",
         "slim/psr7": "^1.7",
         "firebase/php-jwt": "^6.10",
-        "predis/predis": "^2.3"
+        "predis/predis": "^2.3",
+        "nesbot/carbon": "^3.8",
+        "illuminate/support": "^11.37",
+        "vlucas/phpdotenv": "^5.6",
+        "php-di/php-di": "^7.0",
+        "monolog/monolog": "^3.8"
     },
     "autoload": {
         "psr-4": {

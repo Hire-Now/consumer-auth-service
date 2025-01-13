@@ -1,0 +1,48 @@
+version: '3.9'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: consumer-auth-service
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      APP_URL: "http://localhost:8080"
+      JWT_VALIDITY_TIME: "2"
+      JWT_TYPE_TIME: "hours"
+      PRIVATE_KEY_PASSPHRASE: ""
+      DATABASE_HOST: "db"
+      DATABASE_PORT: "3306"
+      DATABASE_NAME: "hire_now"
+      DATABASE_USER: "root"
+      DATABASE_PASSWORD: 0000
+      DATABASE_CHARSET: "utf8mb4"
+    depends_on:
+      - redis
+      - db
+
+  redis:
+    image: redis:latest
+    container_name: redis_server
+    ports:
+      - "6379:6379"
+
+  db:
+    image: mysql:8.0
+    container_name: mysql_server
+    environment:
+      MYSQL_ROOT_PASSWORD: 
+      MYSQL_DATABASE: hire_now
+      MYSQL_USER: root
+      MYSQL_PASSWORD: 0000
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
