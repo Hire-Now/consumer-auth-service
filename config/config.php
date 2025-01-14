@@ -18,7 +18,7 @@ return [
         'charset'  => getenv('DATABASE_CHARSET') ?: '',
     ],
     'redis' => [
-        'host' => getenv('REDIS_HOST') ?: '127.0.0.1',
+        'host' => getenv('REDIS_HOST') ?: 'redis',
         'port' => getenv('REDIS_PORT') ?: '6379',
     ]
 ];

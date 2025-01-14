@@ -23,7 +23,7 @@ class AuthUseCase implements IAuthPort
     {
         try {
             if (!str_starts_with($authorizationHeader, 'Basic ')) {
-                throw new HttpUnauthorizedException("Invalid credentials, please check them and try it again.");
+                throw new HttpUnauthorizedException("Invalid credentials structure, please check them and try it again.");
             }
 
             [ $clientId, $clientSecret ] = $this->authService->extractCliendIDClientSecret($authorizationHeader);

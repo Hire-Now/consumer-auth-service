@@ -18,4 +18,6 @@ RUN chown -R www-data:www-data /var/www/html
 
 RUN composer install
 
+RUN chmod 777 /var/www/html/src/Infrastructure/storage/app/private/keys/private_key.pem
+
 EXPOSE 80

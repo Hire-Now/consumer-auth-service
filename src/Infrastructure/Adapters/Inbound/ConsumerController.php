@@ -12,17 +12,13 @@ use Symfony\Component\Translation\Exception\NotFoundResourceException;
 
 class ConsumerController
 {
-    private $config;
-    private $logger;
 
     public function __construct(
         private readonly AuthenticateConsumerCommandHandler $authenticateConsumerCommandHandler,
         private readonly GenerateJWTForConsumerCommandHandler $generateJWTForConsumerCommandHandler,
-        $config,
-        Logger $logger
+        private array $config,
+        private Logger $logger
     ) {
-        $this->config = $config;
-        $this->logger = $logger;
     }
 
     public function authenticatePost($request, $response, $args)
@@ -65,7 +61,8 @@ class ConsumerController
             return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
         } catch (\Throwable $th) {
             $this->logger->error("Error in ConsumerController@authenticate: {$th->getMessage()}", [
-                'trace' => $th->getTraceAsString()
+                'trace'    => $th->getTraceAsString(),
+                'previous' => $th->getPrevious()
             ]);
 
             $response->getBody()->write(json_encode([
@@ -82,10 +79,9 @@ class ConsumerController
     public function authenticate($data)
     {
         try {
-            $authorization = $data['Authorization'] ?? null;
+            $authorization = $data['authorization'] ?? null;
 
             if (!$authorization) {
-                $this->logger->warning('Authorization header is missing.');
                 throw new \Exception('Authorization header is missing.');
             }
 
@@ -114,7 +110,8 @@ class ConsumerController
             ];
         } catch (\Throwable $th) {
             $this->logger->error("Error in ConsumerController@authenticate: {$th->getMessage()}", [
-                'trace' => $th->getTraceAsString(),
+                'trace'    => $th->getTraceAsString(),
+                'previous' => $th->getPrevious()
             ]);
 
             return [
