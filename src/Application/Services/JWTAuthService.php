@@ -7,6 +7,7 @@ use App\Domain\Entities\JwtToken;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Firebase\JWT\JWT;
+use OpenSSLAsymmetricKey;
 
 class JWTAuthService
 {
@@ -33,7 +34,7 @@ class JWTAuthService
                 'jti' => $jwtId,
             ];
 
-            $privateKey = openssl_pkey_get_private($this->config['app']['user_auth']['private_key_passphrase']);
+            $privateKey = $this->extractPrivateKey();
 
             $jwt = JWT::encode($payload, $privateKey, 'RS256');
 
@@ -41,8 +42,8 @@ class JWTAuthService
                 null,
                 $payload['sub'],
                 $jwtId,
-                $this->config['app']['user_auth']['jwt_validity_time'],
-                $this->config['app']['user_auth']['jwt_type_time'],
+                $this->config['app']['consumer_auth']['jwt_validity_time'],
+                $this->config['app']['consumer_auth']['jwt_type_time'],
                 'Consumer',
                 $jwt
             );
@@ -70,5 +71,22 @@ class JWTAuthService
     public function consumerCredentialsAreValid(string $clientSecret, Consumer $consumer): bool
     {
         return password_verify($clientSecret, $consumer->getClientSecret()) && $consumer->getIsActive();
+    }
+
+    private function extractPrivateKey(): OpenSSLAsymmetricKey
+    {
+        $privateKeyPath = realpath(__DIR__ . '/../../') . '/Infrastructure/storage/app/private/keys/private_key.pem';
+
+        if (!file_exists($privateKeyPath)) {
+            throw new \RuntimeException("Private key file does not exist: {$privateKeyPath}");
+        }
+
+        $privateKey = openssl_pkey_get_private(file_get_contents($privateKeyPath), $this->config['app']['consumer_auth']['private_key_passphrase']);
+
+        if (!$privateKey) {
+            throw new \RuntimeException("Failed to load private key: " . openssl_error_string());
+        }
+
+        return $privateKey;
     }
 }

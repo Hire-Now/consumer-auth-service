@@ -16,8 +16,8 @@ use App\Infrastructure\Database\DBConnection;
 use App\Infrastructure\Persistence\ConsumerRepository;
 use App\Infrastructure\Persistence\JWTTokenRepository;
 use App\Application\Services\JWTAuthService;
+use App\Infrastructure\Console\CreateApiConsumerCommand;
 use DI\Container;
-use PDO;
 
 class ServiceProvider
 {
@@ -74,6 +74,12 @@ class ServiceProvider
         $container->set(GenerateJWTForConsumerCommandHandler::class, function (Container $container) {
             return new GenerateJWTForConsumerCommandHandler(
                 $container->get(AuthUseCase::class)
+            );
+        });
+
+        $container->set(CreateApiConsumerCommand::class, function (Container $container) {
+            return new CreateApiConsumerCommand(
+                $container->get(ConsumerRepositoryPort::class)
             );
         });
     }

@@ -2,11 +2,13 @@
 
 namespace App\Application\UseCases;
 
+use App\Application\Exceptions\HttpUnauthorizedException;
 use App\Application\Ports\Inbound\IAuthPort;
 use App\Domain\Entities\Consumer;
 use App\Domain\Ports\Outbound\ConsumerRepositoryPort;
 use App\Domain\Ports\Outbound\JWTTokenRepositoryPort;
 use App\Application\Services\JWTAuthService;
+use Symfony\Component\Translation\Exception\NotFoundResourceException;
 
 class AuthUseCase implements IAuthPort
 {
@@ -21,7 +23,7 @@ class AuthUseCase implements IAuthPort
     {
         try {
             if (!str_starts_with($authorizationHeader, 'Basic ')) {
-                return null;
+                throw new HttpUnauthorizedException("Invalid credentials, please check them and try it again.");
             }
 
             [ $clientId, $clientSecret ] = $this->authService->extractCliendIDClientSecret($authorizationHeader);
@@ -31,12 +33,14 @@ class AuthUseCase implements IAuthPort
             $isValidConsumer = $this->authService->consumerCredentialsAreValid($clientSecret, $consumer);
 
             if (!$isValidConsumer) {
-                // throw new HttpUnauthorizedException();
+                throw new HttpUnauthorizedException("Invalid credentials, please check them and try it again.");
             }
 
             $this->consumerRepository->updateLastAccess($consumer);
 
             return $consumer;
+        } catch (NotFoundResourceException $th) {
+            throw $th;
         } catch (\Throwable $th) {
             throw new \Exception($th->getMessage(), 0, $th);
         }

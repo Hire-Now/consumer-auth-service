@@ -25,7 +25,11 @@ class Consumer
         #[Getter] #[Setter]
         private ?bool $isActive,
         #[Getter] #[Setter]
-        private ?Carbon $lastAccessAt
+        private ?Carbon $lastActivity,
+        #[Getter] #[Setter]
+        private ?Carbon $createdAt,
+        #[Getter] #[Setter]
+        private ?Carbon $updatedAt,
     ) {
     }
 
@@ -34,7 +38,7 @@ class Consumer
      */
     public function updateLastAccess(): void
     {
-        $this->lastAccessAt = new \DateTimeImmutable();
+        $this->lastActivity = new \DateTimeImmutable();
     }
 
     /**
