@@ -77,10 +77,6 @@ The Consumer Authentication Service uses a message-based communication model to 
 
 *Note: Detailed documentation soon*
 
-Para mencionar este código en el README y aclarar que no es una ruta, sino un comando de consola diseñado para manejar la creación de consumidores API, puedes incluir una sección dedicada a "Console Commands". Aquí hay un ejemplo de cómo estructurarlo:
-
----
-
 ### Console Commands
 
 The Consumer Authentication Service provides a command-line utility for managing API consumers. These commands are not routes but console commands executed via the CLI. Below is an overview of the main console command available:
