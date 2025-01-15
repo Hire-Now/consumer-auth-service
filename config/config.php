@@ -7,6 +7,8 @@ return [
             'jwt_validity_time'      => getenv('JWT_VALIDITY_TIME') ?: 1,
             'jwt_type_time'          => getenv('JWT_TYPE_TIME') ?: 'hours',
             'private_key_passphrase' => getenv('PRIVATE_KEY_PASSPHRASE') ?: '',
+            'private_key_path'       => getenv('PRIVATE_AUTH_KEY_PATH') ?: '',
+            'public_key_path'        => getenv('PUBLIC_AUTH_KEY_PATH') ?: '',
         ],
     ],
     'db'    => [

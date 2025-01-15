@@ -64,4 +64,18 @@ class Consumer
     {
         return password_verify($secret, $this->clientSecret);
     }
+
+    public function toArray(): array
+    {
+        return [
+            'id'            => $this->id,
+            'name'          => $this->name,
+            'client_id'     => $this->clientId,
+            'description'   => $this->description,
+            'is_active'     => $this->isActive,
+            'last_activity' => $this->lastActivity?->format('Y-m-d H:i:s'),
+            'created_at'    => $this->createdAt?->format('Y-m-d H:i:s'),
+            'updated_at'    => $this->updatedAt?->format('Y-m-d H:i:s'),
+        ];
+    }
 }

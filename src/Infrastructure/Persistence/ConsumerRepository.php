@@ -50,7 +50,7 @@ class ConsumerRepository implements ConsumerRepositoryPort
         return $entity;
     }
 
-    public function findByClientId(string $clientId): ?Consumer
+    public function findConsumerByClientIdOrFail(string $clientId): ?Consumer
     {
         $stmt = $this->pdo->prepare('SELECT * FROM api_consumers WHERE client_id = :client_id');
         $stmt->execute([ 'client_id' => $clientId ]);
@@ -58,7 +58,31 @@ class ConsumerRepository implements ConsumerRepositoryPort
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$data) {
-            throw new NotFoundResourceException('Resource not found, please try again.', 404);
+            throw new NotFoundResourceException('Resource consumer not found, please try again.', 404);
+        }
+
+        return new Consumer(
+            $data['id'],
+            $data['name'],
+            $data['client_id'],
+            $data['client_secret'],
+            $data['description'],
+            $data['is_active'],
+            Carbon::parse($data['last_activity']),
+            Carbon::parse($data['created_at']),
+            Carbon::parse($data['updated_at']),
+        );
+    }
+
+    public function findConsumerByIdOrFail(string $clientId): ?Consumer
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM api_consumers WHERE id = :id');
+        $stmt->execute([ 'id' => $clientId ]);
+
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$data) {
+            throw new NotFoundResourceException('Resource consumer not found, please try again.', 404);
         }
 
         return new Consumer(

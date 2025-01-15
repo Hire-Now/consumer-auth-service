@@ -1,5 +1,5 @@
 <?php
-
+//todo: debe habilitarse autenticacion directa a redis para evitar accesos al servicdor insdeseados, adoemas configurar TLS/SSL
 $bootstrap = require_once __DIR__ . '/../public/base_initialization.php';
 $container = $bootstrap['container'];
 

@@ -2,12 +2,15 @@
 
 namespace App\Application\Services;
 
+use App\Application\Exceptions\HttpUnauthorizedException;
 use App\Domain\Entities\Consumer;
 use App\Domain\Entities\JwtToken;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use OpenSSLAsymmetricKey;
+use stdClass;
 
 class JWTAuthService
 {
@@ -52,13 +55,28 @@ class JWTAuthService
         }
     }
 
-    public function validateJWT(string $token): bool
+    public function validateJWT(string $token): bool|stdClass
     {
         try {
-            // JWT::decode($token, $this->secretKey, [ 'HS256' ]);
-            return true;
-        } catch (\Exception $e) {
-            return false;
+            if (empty($token)) {
+                throw new HttpUnauthorizedException('Missing JWT, please check it and provide it on the request.', 401);
+            }
+
+            $publicKey = $this->extractPublicKey();
+
+            $token = str_replace('Bearer ', '', $token);
+
+            $decoded = JWT::decode($token, new Key($publicKey, 'RS256'));
+
+            if (empty($decoded->jti) || empty($decoded->sub) || $decoded->iss !== $this->config['app']['url'] || $decoded->aud !== $this->config['app']['url']) {
+                throw new HttpUnauthorizedException('Token Information is Invalid.', 401);
+            }
+
+            return $decoded;
+        } catch (HttpUnauthorizedException $th) {
+            throw new $th;
+        } catch (\Exception $th) {
+            throw new \RuntimeException('JWT validation failed!', 0, $th);
         }
     }
 
@@ -75,7 +93,7 @@ class JWTAuthService
 
     private function extractPrivateKey(): OpenSSLAsymmetricKey
     {
-        $privateKeyPath = realpath(__DIR__ . '/../../') . '/Infrastructure/storage/app/private/keys/private_key.pem';
+        $privateKeyPath = realpath(__DIR__ . '/../../') . "/Infrastructure/storage/app/{$this->config['app']['consumer_auth']['private_key_path']}";
 
         if (!file_exists($privateKeyPath)) {
             throw new \RuntimeException("Private key file does not exist: {$privateKeyPath}");
@@ -88,5 +106,22 @@ class JWTAuthService
         }
 
         return $privateKey;
+    }
+
+    private function extractPublicKey()
+    {
+        $publicKeyPath = realpath(__DIR__ . '/../../') . "/Infrastructure/storage/app/{$this->config['app']['consumer_auth']['public_key_path']}";
+
+        if (!file_exists($publicKeyPath)) {
+            throw new \RuntimeException("Private key file does not exist: {$publicKeyPath}");
+        }
+
+        $publicKey = file_get_contents($publicKeyPath);
+
+        if (!$publicKey) {
+            throw new \RuntimeException("Failed to load public key");
+        }
+
+        return $publicKey;
     }
 }

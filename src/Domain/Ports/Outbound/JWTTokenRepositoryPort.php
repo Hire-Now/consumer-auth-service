@@ -7,5 +7,5 @@ use App\Domain\Entities\JwtToken;
 interface JWTTokenRepositoryPort
 {
     public function create(JwtToken $entity): JwtToken;
-    public function findByJtiAndUserId(string $jti, string $userId, string $status = 'valid'): array;
+    public function findJWTByJtiAndConsumerIdOrFail(string $jti, string $consumerId, string $status = 'valid'): JWTToken;
 }

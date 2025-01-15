@@ -2,6 +2,7 @@
 
 namespace App\Infrastructure\Providers;
 
+use App\Application\Handlers\ValidateJWTCommandHandler;
 use Monolog\Level;
 use Psr\Container\ContainerInterface;
 use App\Application\Handlers\AuthenticateConsumerCommandHandler;
@@ -24,8 +25,10 @@ class ServiceProvider
     public function __invoke(Container $container)
     {
         $container->set('db', function (ContainerInterface $container) {
-            $pdo = new DBConnection($container->get('config')['db']);
-            return $pdo->getPdo();
+            $dbConfig = $container->get('config')['db'];
+            $logger = $container->get('logger');
+            $dbConnection = new DBConnection($dbConfig, $logger);
+            return $dbConnection->getPdo();
         });
 
         $container->set(ConsumerRepositoryPort::class, function (ContainerInterface $container) {
@@ -60,6 +63,7 @@ class ServiceProvider
             return new ConsumerController(
                 $container->get(AuthenticateConsumerCommandHandler::class),
                 $container->get(GenerateJWTForConsumerCommandHandler::class),
+                $container->get(ValidateJWTCommandHandler::class),
                 $container->get('config'),
                 $container->get('logger')
             );
@@ -80,6 +84,12 @@ class ServiceProvider
         $container->set(CreateApiConsumerCommand::class, function (Container $container) {
             return new CreateApiConsumerCommand(
                 $container->get(ConsumerRepositoryPort::class)
+            );
+        });
+
+        $container->set(ValidateJWTCommandHandler::class, function (Container $container) {
+            return new ValidateJWTCommandHandler(
+                $container->get(AuthUseCase::class)
             );
         });
     }

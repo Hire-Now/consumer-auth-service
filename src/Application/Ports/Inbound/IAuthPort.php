@@ -8,5 +8,5 @@ interface IAuthPort
 {
     public function authenticate(string $authorizationHeader): ?Consumer;
     public function generateJWT(Consumer $consumer): string;
-    public function validateJWT(string $token): bool;
+    public function validateJWT(string $token): Consumer;
 }

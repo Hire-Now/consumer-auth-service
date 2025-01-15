@@ -15,7 +15,7 @@ class AuthUseCase implements IAuthPort
     public function __construct(
         private readonly JWTAuthService $authService,
         private readonly ConsumerRepositoryPort $consumerRepository,
-        private readonly JWTTokenRepositoryPort $repository
+        private readonly JWTTokenRepositoryPort $jwtRepository
     ) {
     }
 
@@ -28,7 +28,7 @@ class AuthUseCase implements IAuthPort
 
             [ $clientId, $clientSecret ] = $this->authService->extractCliendIDClientSecret($authorizationHeader);
 
-            $consumer = $this->consumerRepository->findByClientId($clientId);
+            $consumer = $this->consumerRepository->findConsumerByClientIdOrFail($clientId);
 
             $isValidConsumer = $this->authService->consumerCredentialsAreValid($clientSecret, $consumer);
 
@@ -51,7 +51,7 @@ class AuthUseCase implements IAuthPort
         try {
             $jwtEntity = $this->authService->generateJWT($consumer);
 
-            $this->repository->create($jwtEntity);
+            $this->jwtRepository->create($jwtEntity);
 
             return $jwtEntity->getJwt();
         } catch (\Throwable $th) {
@@ -59,8 +59,30 @@ class AuthUseCase implements IAuthPort
         }
     }
 
-    public function validateJWT(string $token): bool
+    public function validateJWT(string $token): Consumer
     {
-        return $this->authService->validateJWT($token);
+        try {
+            if (!str_starts_with($token, 'Bearer ')) {
+                throw new HttpUnauthorizedException("Invalid credentials structure, please check them and try it again.");
+            }
+
+            $tokenIsValid = $this->authService->validateJWT($token);
+
+            if (!$tokenIsValid) {
+                throw new HttpUnauthorizedException('Token is invalid and thereforer it could not be processed.', 401);
+            }
+
+            $consumer = $this->consumerRepository->findConsumerByIdOrFail($tokenIsValid->sub);
+
+            $this->jwtRepository->findJWTByJtiAndConsumerIdOrFail($tokenIsValid->jti, $consumer->getId());
+
+            return $consumer;
+        } catch (HttpUnauthorizedException $th) {
+            throw $th;
+        } catch (NotFoundResourceException $th) {
+            throw $th;
+        } catch (\Throwable $th) {
+            throw new \Exception($th->getMessage(), 0, $th);
+        }
     }
 }

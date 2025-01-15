@@ -12,7 +12,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Psr7\Response as Psr7Response;
 
-error_reporting(E_ERROR | E_WARNING);
+error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 try {
