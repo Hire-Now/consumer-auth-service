@@ -77,6 +77,49 @@ The Consumer Authentication Service uses a message-based communication model to 
 
 *Note: Detailed documentation soon*
 
+Para mencionar este código en el README y aclarar que no es una ruta, sino un comando de consola diseñado para manejar la creación de consumidores API, puedes incluir una sección dedicada a "Console Commands". Aquí hay un ejemplo de cómo estructurarlo:
+
+---
+
+### Console Commands
+
+The Consumer Authentication Service provides a command-line utility for managing API consumers. These commands are not routes but console commands executed via the CLI. Below is an overview of the main console command available:
+
+#### **Create a New API Consumer**
+
+- **Command Name:** `api:consumer:create`
+- **Description:** Creates a new API consumer by generating a unique `Client ID` and `Client Secret` for authentication.
+- **Usage:**
+  ```bash
+  php path/to/your/console app api:consumer:create {name} [--description=optional_description]
+  ```
+
+- **Arguments:**
+  - `name`: The name of the API consumer (required).
+
+- **Options:**
+  - `--description`: An optional description for the API consumer.
+
+- **Example:**
+  ```bash
+  php path/to/your/console app api:consumer:create "ConsumerName" --description="Description for this consumer"
+  ```
+
+- **Output:**
+  - Upon successful execution, the command will generate and display:
+    - A `Client ID` (used for identifying the API consumer).
+    - A `Client Secret` (used for authenticating the API consumer).  
+      **Note:** Ensure you store the `Client Secret` securely, as it won't be retrievable again.
+
+#### **Command Implementation**
+
+The `api:consumer:create` command is implemented using Symfony's Console component. Here's a brief overview of its functionality:
+1. The command generates a unique `Client ID` and a secure `Client Secret`.
+2. It stores the new API consumer in the database using the `ConsumerRepositoryPort`.
+3. Outputs the credentials to the console for secure storage.
+
+This command simplifies API consumer management, allowing administrators to create new consumers without interacting with the database directly.
+
 ## Testing
 
 *Note: Testing will be implemented soon*
